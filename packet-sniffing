@@ -1,0 +1,13 @@
+Useful Tshark Commands
+======================
+To effectalty use wireshark / tshark understand Display Filter and Capture Filter 
+https://wiki.wireshark.org/CaptureFilters
+https://wiki.wireshark.org/DisplayFilters
+
+1). List iterfaces
+
+      PS C:\> tshark -D
+      1. \Device\NPF_{AF9057F3-46E4-422D-A364-84046CB4F00A} (Npcap Loopback Adapter)
+      2. \Device\NPF_{ED05A514-9AB0-4367-958E-CB09EF6B1E5E} (Wi-Fi)
+      
+ 
