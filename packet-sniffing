@@ -6,8 +6,18 @@ https://wiki.wireshark.org/DisplayFilters
 
 1). List iterfaces
 
-      PS C:\> tshark -D
-      1. \Device\NPF_{AF9057F3-46E4-422D-A364-84046CB4F00A} (Npcap Loopback Adapter)
-      2. \Device\NPF_{ED05A514-9AB0-4367-958E-CB09EF6B1E5E} (Wi-Fi)
+    C:\> tshark -D
+    1. \Device\NPF_{AF9057F3-46E4-422D-A364-84046CB4F00A} (Npcap Loopback Adapter)
+    2. \Device\NPF_{ED05A514-9AB0-4367-958E-CB09EF6B1E5E} (Wi-Fi)
       
- 
+2). Capture based upon protocl UDP, TCP & ICMP. 
+
+    C:\> tshark -i <ifname> -f "icmp"                                                                                                                                                                               Capturing on 'fortivpn'
+    C:\> tshark -i <ifname> -f "udp"                                                                                                                                                                                Capturing on 'fortivpn'
+    C:\> tshark -i <ifname> -f "tcp"                                                                                                                                                                                Capturing on 'fortivpn'
+    C:\> tshakr -i <ifname> -f "icmp or tcp or udp"
+         
+3). Capture based upon port and ip.
+     
+    C:\> tshark -i <ifname> -f "port yy and x.x.x.x"
+     
