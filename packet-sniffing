@@ -21,3 +21,6 @@ https://wiki.wireshark.org/DisplayFilters
      
     C:\> tshark -i <ifname> -f "port yy and x.x.x.x"
      
+ 4). Capture TLS handshake
+    
+    C:\> tshark -i <ifname> f  "port 443  and  host x.x.x.x"  -Y  "tls.handshake"
