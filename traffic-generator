@@ -1,0 +1,8 @@
+Netcat 
+=======
+The netcat is my favorite when is comes to send TCP or UDP based data quickly. Using /dev/zero as input and /dev/null as output you can create an infinte data trnasfer stream.
+Using -O option can be used to control the size of data in a packet.
+
+Linux Server: nohup nc -k -l 8080 > /dev/null 2>&1 & <====================> Linux Client: nohup nc -O 3 10.30.66.103 8080 < /dev/zero &  
+Windows Server: nc -k -l 8080 > NUL                  <====================> Linux Client: nohup nc -O 3 10.30.66.103 8080 < /dev/zero & 
+Windows Server: nc -k -l 8080 > NUL                  <====================> Windows Client: nohup nc -O 3 10.30.66.103 8080 < /dev/zero & ( Install Linux Subsytem in Windows )
