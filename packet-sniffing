@@ -26,7 +26,7 @@ https://wiki.wireshark.org/DisplayFilters
     C:\> tshark -i <ifname> -T fields -E header=y -e frame.number -e ip.src -e ip.dst  -e tcp.srcport  -e tcp.dstport -e _ws.col.Info -f "port 443" -Y "tls.handshake"
 	
 6). Example to dislay SNI field in the TLS Client Hello message.
-    C:\> tshark -i <ifname> -T fields -e frame.number -e ip.addr  -e tcp.port -e tls.handshake.extensions_server_name  -e _ws.col.Info -f "port 443" -Y "tls.handshake.extensions_server_name"                      Capturing on 'Wi-Fi'
+    C:\> tshark -i <ifname> -T fields -e frame.number -e ip.addr  -e tcp.port -e tls.handshake.extensions_server_name  -e _ws.col.Info -f "port 443" -Y "tls.handshake.extensions_server_name"
     89      192.168.43.146,40.100.137.82    39076,443       outlook.office365.com   Client Hello
     90      192.168.43.146,40.100.137.82    39077,443       outlook.office365.com   Client Hello
     91      192.168.43.146,40.100.137.82    39078,443       outlook.office365.com   Client Hello
