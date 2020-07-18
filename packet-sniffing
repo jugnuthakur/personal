@@ -23,4 +23,9 @@ https://wiki.wireshark.org/DisplayFilters
      
  4). Capture TLS handshake
     
-    C:\> tshark -i <ifname> f  "port 443  and  host x.x.x.x"  -Y  "tls.handshake"
+    C:\> tshark -i <ifname> -f "port 443  and  host x.x.x.x"  -Y  "tls.handshake"
+    
+5). Control the fields you want to display.
+
+    C:\> tshark -i <ifname> -T fields -e frame.number -e ip.addr -e tcp.port  -e _ws.col.Info -f "port 443" -Y "tls.handshake" 
+    C:\> tshark -i <ifname> -T fields -E header=y -e frame.number -e ip.src -e ip.dst  -e tcp.srcport  -e tcp.dstport -e _ws.col.Info -f "port 443" -Y "tls.handshake"  
