@@ -30,3 +30,5 @@ https://wiki.wireshark.org/DisplayFilters
     89      192.168.43.146,40.100.137.82    39076,443       outlook.office365.com   Client Hello
     90      192.168.43.146,40.100.137.82    39077,443       outlook.office365.com   Client Hello
     91      192.168.43.146,40.100.137.82    39078,443       outlook.office365.com   Client Hello
+
+You can use Wireshark and save the most used filters and use them wiht -e <field> to display relevent information.
