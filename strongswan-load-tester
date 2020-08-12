@@ -1,0 +1,48 @@
+Linux Flavor: Ubuntu20
+Download latest strongswan
+
+wget https://download.strongswan.org/strongswan-5.9.0.tar.bz2
+
+
+Install following packages in Ubuntu if already not installed
+	apt update
+	apt install -y gcc
+	apt install -y libgmp10
+	apt install -y libgmp-dev
+	apt install -y pkg-config
+	apt install -y libsystemd-dev
+	apt install -y libgcrypt-dev
+	apt install -y make
+	apt install -y  libssl-dev
+
+Unzip tar file
+	tar xvjf strongswan-5.9.0.tar.bz2
+
+cd to strongswan dir
+
+Check configure help in case more options plugin are required to be installed
+./configure --help
+
+
+Following are enough for load-tester plugin. --prefix and --exec-prefix are path where binanry and configuration files will be installed. 
+If you don't specify, then default location will we selected. Check ./configure --help for details.
+
+
+	./configure  \
+	--prefix=/home/ubuntu/vpn --exec-prefix=/home/ubuntu/vpn \
+	--enable-load-tester --enable-agent --enable-cmd \
+	--enable-conftest --enable-counters --enable-coupling \
+	--enable-dhcp --enable-error-notify --enable-gcm --enable-gcrypt \
+	--enable-openssl --enable-sha3 \
+	--enable-systemd --disable-ikev1 --with-systemdsystemunitdir
+
+	make
+	make install
+
+After sucessful installation binary will be install under /home/ubuntu/vpn/sbin and this location to PATH variable. 
+
+/home/ubuntu/vpn/sbin# ls
+charon-cmd  charon-systemd  ipsec  swanctl
+
+export PATH="$PATH:/home/ubuntu/vpn/sbin"
+
