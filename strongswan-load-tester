@@ -46,3 +46,30 @@ charon-cmd  charon-systemd  ipsec  swanctl
 
 export PATH="$PATH:/home/ubuntu/vpn/sbin"
 
+For charon as systemd service as we enabled systemd above, create following file and a soft link "strongswan.service" for it under /etc/systemd/system
+
+
+	/lib/systemd/system/strongswan.service
+
+	[Unit]
+	Description=strongSwan IPsec IKEv1/IKEv2 daemon using swanctl
+	After=network-online.target
+
+	[Service]
+	Type=notify
+	ExecStart=/home/ubuntu/vpn/sbin/charon-systemd
+	ExecStartPost=/home/ubuntu/vpn/sbin/swanctl --load-all --noprompt
+	ExecReload=/home/ubuntu/vpn/sbin/swanctl --reload
+	ExecReload=/home/ubuntu/vpn/sbin/swanctl --load-all --noprompt
+	Restart=on-abnormal
+
+	[Install]
+	WantedBy=multi-user.target
+	Alias=strongswan-swanctl.service
+
+
+	ln -s /lib/systemd/system/strongswan.service strongswan.service
+
+Follow instruction in following link to configure load-tester
+
+	https://wiki.strongswan.org/projects/strongswan/wiki/LoadTests
