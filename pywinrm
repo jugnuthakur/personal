@@ -1,0 +1,20 @@
+Enable WinRM in Windows Server
+===============================
+c:\> winrm quickconfig
+c:\> winrm e winrm/config/listener
+Enable basic authentication on the WinRM service.
+c:\> winrm set winrm/config/service/auth '@{Basic="true"}'
+c:\> winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+c:\> winrm set winrm/config/client '@{AllowUnencrypted="true"}'
+
+Python Example
+
+>>> import winrm
+>>> s = winrm.Session('10.30.57.102', auth=('administrator@qa.org', 'abc321'))
+>>> r = s.run_cmd('ipconfig')
+>>> r.std_out
+b'\r\nWindows IP Configuration\r\n\r\n\r\n
+Ethernet adapter Ethernet3:\r\n\r\n
+IPv4 Address. . . . . . . . . . . : 10.30.57.102\r\n
+Subnet Mask . . . . . . . . . . . : 255.255.254.0\r\n
+Default Gateway . . . . . . . . . : 10.30.56.1\r\n\r\n
