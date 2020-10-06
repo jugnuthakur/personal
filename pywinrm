@@ -8,13 +8,39 @@ c:\> winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 c:\> winrm set winrm/config/client '@{AllowUnencrypted="true"}'
 
 Python Example
+========================================================================================
+import winrm
 
->>> import winrm
->>> s = winrm.Session('10.30.57.102', auth=('administrator@qa.org', 'abc321'))
->>> r = s.run_cmd('ipconfig')
->>> r.std_out
-b'\r\nWindows IP Configuration\r\n\r\n\r\n
-Ethernet adapter Ethernet3:\r\n\r\n
-IPv4 Address. . . . . . . . . . . : 10.30.57.102\r\n
-Subnet Mask . . . . . . . . . . . : 255.255.254.0\r\n
-Default Gateway . . . . . . . . . : 10.30.56.1\r\n\r\n
+class Windows:
+    """
+    Windows class
+    """
+    def __init__(self, host, username, password):
+        """   
+        Initialize host, username and password when Windows Class object is created
+        """
+        self.host = host
+        self.username = username
+        self.password = password
+        
+    def login_session(self):
+        """
+        This function creates a session for WinRM
+        """
+        return winrm.Session(self.host, auth=(self.username, self.password))
+        
+    def execute_cmd(self, session, cmd):
+        """
+        Exectue cmd based Windows Command
+        """
+        self.session = session
+        self.cmd = cmd
+        output = session.run_cmd(cmd)
+        return output.std_out
+
+if __name__ == "__main__":
+    winObj = Windows("192.168.0.11","administrator@qa.org","password123")
+    session_id = winObj.login_session()
+    winObj.execute_cmd(session_id,"ipconfig")
+    
+===========================================================================================
