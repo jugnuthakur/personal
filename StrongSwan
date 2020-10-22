@@ -1,0 +1,111 @@
+This page is about StrongSwan Configuration for different scenarios.
+
+StrongSwan VPN Gateway certificate based authentication
+========================================================
+1). First Create CA and VPN gateway server certificate
+
+I have complied the Stongswan package under /etc/vpn and below is my directory structure.
+root@netsec:/etc/vpn# ls
+bin  etc  lib  libexec  sbin  share
+root@netsec:/etc/vpn# ls etc/swanctl/
+bliss  conf.d  ecdsa  pkcs12  pkcs8  private  pubkey  rsa  swanctl.conf  swanctl.conf.bak  x509  x509aa  x509ac  x509ca  x509crl  x509ocsp
+
+cd /etc/vpn/etc/swanctl
+root@netsec:/etc/vpn/etc/swanctl#
+
+Create CA cert
++++++++++++++++
+# ipsec pki --gen --type rsa --size 4096 --outform pem > private/strongSwanCAkey.pem
+# chmod 400 private/strongSwanCAkey.pem
+# ipsec pki --self --ca --lifetime 2000 --type rsa --dn "C=IN, O=VPN, CN=strongSwan Root CA" \
+          --in private/strongSwanCAkey.pem  \
+          --outform pem > x509ca/strongSwanCACert.pem
+
+Create VPN Gateway cert
++++++++++++++++++++++++
+# ipsec pki --gen --type rsa --size 2048 --outform pem > private/strongSwanGatewayKey.pem
+# chmod 400 private/strongSwanGatewayKey.pem
+# ipsec pki --pub --in private/strongSwanGatewayKey.pem --type rsa | \
+          ipsec pki --issue --lifetime 500 \
+             --cakey private/strongSwanCAkey.pem \
+	           --cacert x509ca/strongSwanCACert.pem \
+             --dn "C=IN, O=VPN, CN=vpn.gateway.com" \
+	           --san vpn.gateway.com \
+             --flag serverAuth --flag ikeIntermediate \
+	           --outform pem > x509/strongSwanGatewayCert.pem
+
+Create PKCS format client cert
+++++++++++++++++++++++++++++++
+# ipsec pki --gen --type rsa --size 2048 --outform pem > /home/jugnu/jugnuKey.pem
+# chmod 400 /home/jugnu/jugnuKey.pem
+# ipsec pki --pub --in /home/jugnu/jugnuKey.pem --type rsa | \
+     ipsec pki --issue --lifetime 500 \
+          --cakey private/strongSwanCAkey.pem \
+	  --cacert x509ca/strongSwanCACert.pem \
+          --dn "C=IN, O=VPN, CN=jugnu@gateway.com" \
+	  --san jugnu@gateway.com \
+	  --outform pem > x509/jugnuCert.pem
+
+
+openssl pkcs12 -export -inkey /home/jugnu/jugnuKey.pem \
+	-in x509/jugnuCert.pem -name "Jugnu's VPN Certificate" \
+	-certfile x509ca/strongSwanCACert.pem \
+	-caname "strongSwan Root CA" \
+	-out /home/jugnu/Jugnu.p12
+
+2). Connfigure swanctl.conf
+=======================================================================================
+connections  {
+    RW-VPN {
+        version = 2
+        proposals = aes128gcm16-sha1-modp1024
+        dpd_delay = 30s
+        dpd_timeout = 150s
+
+        fragmentation = yes
+        dpd_delay = 300s
+        local_addrs = %any
+        remote_addrs = %any
+
+        encap = yes
+        keyingtries = 0
+        rekey_time = 32h
+
+        pools = primary-pool-ipv4
+        local {
+                auth = pubkey
+                id = "C=IN, O=VPN, CN=vpn.gateway.com"
+                cert {
+                         file = "/etc/vpn/etc/swanctl/x509/strongSwanGatewayCert.pem"
+                 }
+                 cacert {
+                         file = "/etc/vpn/etc/swanctl/x509ca/strongSwanCACert.pem"
+                 }
+        }
+        remote {
+                auth = pubkey
+                cacert {
+                        file = "/etc/vpn/etc/swanctl/x509ca/strongSwanCACert.pem"
+                 }
+        }
+        children {
+            ikev2-pubkey {
+                local_ts = 0.0.0.0/0
+                rekey_time = 8h
+                dpd_action = restart
+                #esp_proposals =  aescbc256-sha1
+            }
+        }
+    }
+}
+
+pools {
+        primary-pool-ipv4 {
+                addrs = 192.168.100.0/24
+                dns = 8.8.8.8
+        }
+}
+=======================================================================================
+
+3). Import Jugnu.p12 in your Windows Machine Personal certificate section.
+4). In Windows 10 create VPN and select "Use machine certificates" in adapter's propertites.
