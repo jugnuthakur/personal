@@ -53,59 +53,149 @@ openssl pkcs12 -export -inkey /home/jugnu/jugnuKey.pem \
 	-caname "strongSwan Root CA" \
 	-out /home/jugnu/Jugnu.p12
 
-2). Connfigure swanctl.conf
+2). Policy Based VPN. Road Warrior trying to access resources behind VPN Gateway-2
+				 Responder					      Initiator
+[Road Warrior] ------------ [ VPN Gateway-1] <========Site-to-Site-IPSec========> [ VPN Gateway-2]
+
+VPN Gateway-1: 192.168.20.20
+VPN Gateway-2: 192.168.20.10
+
+
+++++++++++++++++++++++++++++++
++ VPN Gateway-2 swanctl.conf +
+++++++++++++++++++++++++++++++
+
 =======================================================================================
-connections  {
-    RW-VPN {
-        version = 2
-        proposals = aes128gcm16-sha1-modp1024
-        dpd_delay = 30s
-        dpd_timeout = 150s
+connections {
+        Road-Warrior-VPN {
+                version = 2
+                proposals = aes128gcm16-sha1-modp1024
+                dpd_delay = 30s
+                dpd_timeout = 150s
 
-        fragmentation = yes
-        dpd_delay = 300s
-        local_addrs = %any
-        remote_addrs = %any
+                fragmentation = yes
+                dpd_delay = 300s
+                local_addrs = %any
+                remote_addrs = %any
 
-        encap = yes
-        keyingtries = 0
-        rekey_time = 32h
+                encap = yes
+                keyingtries = 0
+                rekey_time = 32h
 
-        pools = primary-pool-ipv4
-        local {
-                auth = pubkey
-                id = "C=IN, O=VPN, CN=vpn.gateway.com"
-                cert {
-                         file = "/etc/vpn/etc/swanctl/x509/strongSwanGatewayCert.pem"
-                 }
-                 cacert {
-                         file = "/etc/vpn/etc/swanctl/x509ca/strongSwanCACert.pem"
-                 }
+                pools = primary-pool-ipv4
+                local {
+                        auth = pubkey
+                        id = "C=CH, O=strongSwan, CN=vpn.gateway.com"
+                        cert {
+                                 file = "/etc/vpn/etc/swanctl/x509/strongSwanGatewayCert.pem"
+                         }
+                        cacert {
+                                 file = "/etc/vpn/etc/swanctl/x509ca/strongSwanCACert.pem"
+                        }
+                }
+                remote {
+                        auth = pubkey
+                        cacert {
+                                file = "/etc/vpn/etc/swanctl/x509ca/strongSwanCACert.pem"
+                        }
+                }
+                children {
+                        ikev2-pubkey {
+                                local_ts = 0.0.0.0/0
+                                rekey_time = 8h
+                                dpd_action = restart
+                        }
+                }
         }
-        remote {
-                auth = pubkey
-                cacert {
-                        file = "/etc/vpn/etc/swanctl/x509ca/strongSwanCACert.pem"
-                 }
+
+         n2s {
+                version = 2
+                local_addrs  = 192.168.20.20
+                remote_addrs = 192.168.20.10
+                encap = no
+                pools = primary-pool-ipv4
+                local {
+                        auth = psk
+                        id = 192.168.20.20
+                }
+
+                remote {
+                        auth = psk
+                        id = 192.168.20.10
+                }
+                children {
+                        s2s {
+                                local_ts  = 192.168.100.0/24
+                                remote_ts = 172.31.0.0/24
+                                esp_proposals = aes256-sha1
+                        }
+                }
+
         }
-        children {
-            ikev2-pubkey {
-                local_ts = 0.0.0.0/0
-                rekey_time = 8h
-                dpd_action = restart
-                #esp_proposals =  aescbc256-sha1
-            }
-        }
-    }
 }
 
 pools {
         primary-pool-ipv4 {
                 addrs = 192.168.100.0/24
-                dns = 8.8.8.8
+        }
+}
+
+secrets {
+        ike-site-site {
+                id-1 = 192.168.20.20
+                id-2 = 192.168.20.10
+                secret = sitetosite
+        }
+}
+
+=======================================================================================
+
+++++++++++++++++++++++++++++++
++ VPN Gateway-2 swanctl.conf +
+++++++++++++++++++++++++++++++
+
+=======================================================================================
+
+connections {
+        s2n {
+                version = 2
+                local_addrs  = 192.168.20.10
+                remote_addrs = 192.168.20.20
+                encap = no
+                vips = 0.0.0.0
+                local {
+                        auth = psk
+                        id = 192.168.20.10
+                }
+
+                remote {
+                        auth = psk
+                        id = 192.168.20.20
+                }
+
+                children {
+                        s2s {
+                                local_ts  = 172.31.0.0/24
+                                remote_ts = 192.168.100.0/24
+                                esp_proposals = aes256-sha1
+                        }
+                }
+        }
+
+}
+
+secrets {
+        ike-site-site {
+                id-1 = 192.168.20.10
+                id-2 = 192.168.20.20
+                secret = sitetosite
         }
 }
 =======================================================================================
 
+
 3). Import Jugnu.p12 in your Windows Machine Personal certificate section.
 4). In Windows 10 create VPN and select "Use machine certificates" in adapter's propertites.
+5). Trigger VPN from responder 
+      swanctl -i -i s2n
+      swanctl -i -c s2s
