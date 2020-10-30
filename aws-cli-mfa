@@ -1,0 +1,28 @@
+How to use MFA via aws cli
+============================
+
+$ aws configure set aws_access_key_id default_access_key
+$ aws configure set aws_secret_access_key default_secret_key
+$ aws configure set default.region us-west-2
+
+MFA login
+
+$  aws sts get-session-token --serial-number arn:aws:iam::1234567890:mfa/first.last@gmail.com --token-code 076458
+
+{
+    "Credentials": {
+        "AccessKeyId": "ASWED3445FGH44ER98JK",
+        "SecretAccessKey": "salfhshf;whhroqjjwtr;lqjwofq;oihhfoi",
+        "SessionToken": "IQoJb3JpZ2luX2VjEJz//////////wEaCmFwLXNvdXRoLTEiRjBEAiB+s/f/UwOMAB0tw0H3SjzViTbuAxZ2c9zwmIQrX4bfSwIgD65kre4euDoh4VVzClpPnbfISLPVliq0B35/JWjxcpcq+AEI1f//////////ARACGgwwOTY3NDIyNzI5MzQiDCiUX8nqy2KG+Sh8UCrMAa8H0kIOnhq29gAvufoc6w3Dq0+z1++ZsLOwKj2xQaRVAsG+/g/4LM9in3hCqS2EqkGBX8N/EGqsmLNvJuCDK1eEEbccN7g6DoSg+x08fhAiAooAcAh9GX6nXO/dn4T3oBsPpfmWvL325xikBQy3LDsCKYd6YcoZfxjPpSTwaVSWeCDEMfEGj8IVvgo36L/g5Gg8y6I9iUyAuFY3ORtiEzPAXO4YxwGNqjY6vrNZ3ZkT5khl9p8BMIJgjbrV5Ja1lpFDJiGTe1Kokp9t2TCW8qD8BTqZAd+DEPqrHgG+jd/VHf40kPttAe1flq15K6PjzPbS/fjjBCfYGcZSfQ55/MhAcmJLbVSQSG1XF5wVRqK1wXD5AFU6AQ+8js0RPvIiD7CKsMVnZRSLA5Kbf3jBb4EkvtWb/1pS2FqzgMvJkqS85K36vEHPLmj4SjNBq2XPD1tjlFj//Ukq67gdq6lAhwRNPf5brP6v4oG0lYPphA==",
+        "Expiration": "2020-10-15T23:57:10+00:00"
+    }
+}
+
+export AWS_ACCESS_KEY_ID=example-access-key-as-in-previous-output
+export AWS_SECRET_ACCESS_KEY=example-secret-access-key-as-in-previous-output
+export AWS_SESSION_TOKEN=example-session-token-as-in-previous-output
+
+aws ec2 modify-instance-attribute --instance-id i-xxxxxxxxxxxxxxxxx --ena-support --region xx-xxxxx-x
+
+aws ec2 modify-instance-attribute --instance-id i-024d75f038515698f --ena-support
+aws ec2 describe-instances --instance-ids i-024d75f038515698f --query "Reservations[].Instances[]"
