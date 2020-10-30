@@ -23,6 +23,66 @@ export AWS_SECRET_ACCESS_KEY=example-secret-access-key-as-in-previous-output
 export AWS_SESSION_TOKEN=example-session-token-as-in-previous-output
 
 aws ec2 modify-instance-attribute --instance-id i-xxxxxxxxxxxxxxxxx --ena-support --region xx-xxxxx-x
-
 aws ec2 modify-instance-attribute --instance-id i-024d75f038515698f --ena-support
 aws ec2 describe-instances --instance-ids i-024d75f038515698f --query "Reservations[].Instances[]"
+
+
+Python boto3 library to create EC2 instances ( Work in Progress )
+===================================================================
+import boto3
+import logging
+
+logging.basicConfig(filemode='w', filename = 'api.log', level=logging.INFO)
+
+mfa_otp = input("Enter the MFA code: ")
+
+client = boto3.client('sts')
+
+mfa = client.get_session_token(
+    DurationSeconds=7200,
+    SerialNumber='arn:aws:iam::096742272934:mfa/jugnu.thakur@colortokens.com',
+    TokenCode=mfa_otp
+)
+"""
+ec2 = boto3.client(
+    'ec2',
+    aws_access_key_id=mfa['Credentials']['AccessKeyId'],
+    aws_secret_access_key=mfa['Credentials']['SecretAccessKey'],
+    aws_session_token=mfa['Credentials']['SessionToken']
+)
+ response = ec2.describe_instances()
+"""
+
+ec2 = boto3.resource(
+        'ec2',
+        aws_access_key_id=mfa['Credentials']['AccessKeyId'],
+        aws_secret_access_key=mfa['Credentials']['SecretAccessKey'],
+        aws_session_token=mfa['Credentials']['SessionToken']
+)
+
+instances = ec2.create_instances(
+# Option are described in below link
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.ServiceResource.create_instances
+#     
+    ImageId='ami-0cda377a1b884a1bc',
+    MinCount=1,
+    MaxCount=1,
+    InstanceType='t2.micro',
+    #CpuOptions={'CoreCount': 1, 'ThreadsPerCore': 1},
+    Monitoring={'Enabled': False},
+    InstanceInitiatedShutdownBehavior = 'stop',
+    SubnetId='subnet-c14da0a8',
+    TagSpecifications = [
+                          { 
+                              'ResourceType':'instance', 'Tags': [{'Key': 'Owner', 'Value': 'jugnu.thakur@gmail.com'}]
+                          },
+                        ],
+    KeyName='Mumbai-ZTNA',
+    SecurityGroupIds=['sg-0f7153a2814e7eea9']
+)
+# Decode access level errors
+# https://aws.amazon.com/blogs/security/demystifying-ec2-resource-level-permissions/
+
+logging.info("%s", instances)
+
+=================================================================================================================================================
