@@ -1,0 +1,61 @@
+This page is about sample codes to configure VPN using vici library of strongswan. First I'm starting with simple python code to load configuration and shared serect
+of a Site to Site IPsec tunnel. The vici APIs are explained in below link.
+
+https://github.com/strongswan/strongswan/blob/master/src/libcharon/plugins/vici/README.md
+
+For license terms of using vici check the License link.
+https://github.com/strongswan/strongswan/blob/master/src/libcharon/plugins/vici/python/LICENSE
+
+vici version: 5.8.4
+python version: 3.8.0
+++++++++++++++++++++++++++++++++++++++++++++++++++++++ Python Code Start ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+import vici
+import time
+import collections
+
+v = vici.Session(sock)
+
+key = { "id":"n2s", "type":"IKE", "data":"sitetosite", "owners":["192.168.20.20", "192.168.20.10"]}
+sharedKey = collections.OrderedDict(key)
+print("Loading Shared Key for Site to Site IPSec")
+v.load_shared(sharedKey)
+print(v.get_shared())
+
+config = { 'n2s' : {'version' : '2',
+                    'local_addrs' : ['192.168.20.20'] ,
+                    'remote_addrs' : ['192.168.20.10'],
+                    'encap' : 'yes',
+                    'local' : {'id' : '192.168.20.20', 'auth' : 'psk' } ,
+                    'remote' : {'id' : '192.168.20.10', 'auth' : 'psk' },
+                    'children' : { 's2s' : {'mode' : 'tunnel',
+                                            'local_ts': ['192.168.100.0/24'],
+                                            'remote_ts': ['8.8.8.8/32'],
+                                            'esp_proposals' : ['aes256-sha1'],
+                                           }}}}
+
+vpnConfig = collections.OrderedDict(config)
+
+print("Loading Configuration for Site to Site IPSec")
+v.load_conn(vpnConfig)
+
+print("Print Loaded Configuration")
+conns = v.list_conns()
+for conn in conns:
+    print(conn)
+
+print("Initiating IPSec tunnel")
+ret = v.initiate({"child":"s2s"})
+next(ret)
+
+time.sleep(10)
+
+ret = v.terminate({"child":"s2s"})
+next(ret)
+
+time.sleep(10)
+
+ret = v.terminate({"ike":"n2s"})
+next(ret)
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++ Python Code End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++
