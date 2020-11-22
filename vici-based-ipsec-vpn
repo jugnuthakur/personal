@@ -1,5 +1,4 @@
-This page is about sample codes to configure VPN using vici library of strongswan. First I'm starting with simple python code to load configuration and shared serect
-of a Site to Site IPsec tunnel. The vici APIs are explained in below link.
+This page is about sample codes to configure VPN using vici library of strongswan. The vici APIs are explained in below link.
 
 https://github.com/strongswan/strongswan/blob/master/src/libcharon/plugins/vici/README.md
 
