@@ -14,7 +14,7 @@ import vici
 import time
 import collections
 
-v = vici.Session(sock)
+v = vici.Session()
 
 key = { "id":"n2s", "type":"IKE", "data":"sitetosite", "owners":["192.168.20.20", "192.168.20.10"]}
 sharedKey = collections.OrderedDict(key)
