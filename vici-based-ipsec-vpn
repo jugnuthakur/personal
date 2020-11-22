@@ -8,6 +8,7 @@ https://github.com/strongswan/strongswan/blob/master/src/libcharon/plugins/vici/
 
 vici version: 5.8.4
 python version: 3.8.0
+++++++++++++++++++++++++++++++++++++++++++++++++++++++  Site to Site VPN ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++ Python Code Start ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import vici
@@ -59,3 +60,83 @@ ret = v.terminate({"ike":"n2s"})
 next(ret)
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++ Python Code End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++  Road Warrior VPN Gateway +++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++ Python Code Start ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+import vici
+import socket
+import collections
+
+sock = socket.socket(socket.AF_INET)
+sock.connect(("192.168.20.20", 100))
+v = vici.Session(sock)
+
+# Private key of strongSwanGatewayCert.pem
+pvtkey={ "type":"rsa",
+         "data":"""-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA26DSGCd1rv7lwS9CWoo0x8I7F/GQ7UA5ocMDuG00ziiAQAm+
+H32P+WmctZi/m3E9+wVZOKEutpNl6CcyvZG5Gz5Djh3b0oHdf9jK9lbsxUTmfpDi
+XIecUPnHv2iy4BPuTY/WD2Gi9rF7z7UEUrwl1sq9PF740XPjdrRSbxjXEqqGftzb
+LRXKoO+My/BWvpp4NG4HYCH/rMiFUvbdGS0VwubhwyAhfxydnSHv8+UPl3ec4dpt
+N8cKnQLCb0rZPKm+7DnFz2qgz4N++KIDK0BQf38Py8Xk3NOnHC50n3krfTYhZ1k9
+tQ1fq2v2oFoZSTUJ0gXoqtCWPFEvL7L9IrG+NQIDAQABAoIBAB2dWNcC8x5upoJf
+If5dZnKNITTAUP98yoiiaC0FJLqrwWdhKO7MGo7SC9x8xVFreqUPepFlQoxB4drk
+9jWTobcntSpDonGHK1vi2rNO00xiVwY3+R3q90v/8kxADOakKVzyCTY3vyaulfhS
++0tArYWB/vRWBg0QKFrIQ9lRKycL8XUlurYWjWbeH1MxHiLYx8HweO3vlvXC89iS
+pu+tiRSzF3SRM/vrusT2+x49VBHpq0y0newpQIgWKV+Ym+6xHm25U2yfD3WWKZeq
+TqBRFRK0AQQmC8405u5jtHozjHDP1cXn59qFxclYY6q6r59431Own4AFEwIB/uF+
+uUANW8ECgYEA8A/43U7r0KgsMnP9CHp6trIwwW0JOiVLR+Ylf0/xtH5K3NWuLh67
+lBalHlKBUFfVjy+NxB7p5GESYLJbM2syjwmqGaUtaWXbJoxTjCvmRINRbi8KwI5s
+ffxhMUi0gdf3louRVqhCTgW3Vwv/pvdqy59MALSkiZ7biOg9EYVASkUCgYEA6jWO
+KQl+fn5EOxsS0IqM5NvzM/oXnahXvH9QjhFoyBKTJnRko01iNHdm4wjTTFI1s/B4
+Nj21H3l6b2sgvCx0wAoytNQKv/u7FU6ADS8owlKmF81Aof7y/ZNBFdwy/MbA6lkj
+tm1qgYXGyWDk2crlP3xHu7xy75XtcKSjAPFZWzECgYEAmviEnEEtZAaceXl8+DMw
+8q23YbaExV976I8+16ABFZaNt1/N0IIQb3nq39c9GWOKPqPhLaETNlYf6gJZc6kY
++1Ou1l1WInsZbRobeRqBzOrE7484rrOCgBYjnBAmTsffUfUJPtrh6sIv5+acA+om
+rApKow36RckiSZA6lAvkQ80CgYEAv6dVjpU7Us2GjgtoiQhnpTurt4PW4WeJbDGO
+vMLYSKiSi6xBUjSXwTFYGz70kYbQdU+5P0GdvoTMwPIcFoAWhbOSrNC7f0DCZfwX
+4zING39AdUe7tRSIySI/52CKxLjr0plhFP5SYm0TL2U/wE087YeIt8LNFutMIppG
+3RWitnECgYAPwbQAnkYCjdUAXvm0vSzdmwM4KXlSnTohuKr49IwcEy7M5+iijM5s
+cEOQEHazIjZqMIPrAU8h5WClY6yz2DJdKZUj9B6TlQK55uNxpSH6UshT4kYEy9hC
+O5Ln1HOk/B+UHSaiRnEYG23eu2Moa1E/T7o53z23U4h+LQ9iNTpysQ==
+-----END RSA PRIVATE KEY-----"""
+}
+v.load_key(pvtkey)
+
+v.load_pool({"rw-pool": {"addrs": "192.168.100.0/24"}})
+print(v.get_pools())
+config = { 'Road-Warrior' : {'version' : '2',
+                                'proposals' : ['aes128gcm16-sha1-modp1024'],
+                                'dpd_delay' : '30s',
+                                'dpd_timeout': '150s',
+                                'fragmentation': 'yes',
+                                'local_addrs' : ['%any'],
+                                'remote_addrs' : ['%any'],
+                                'encap' : 'yes',
+                                'keyingtries' : '0',
+                                'rekey_time' : '24h',
+                                'pools' : ['rw-pool'],
+                                'local' : { 'id' : 'C=CH, O=strongSwan, CN=vpn.gateway.com',
+                                            'auth' : 'pubkey',
+                                            'cert' : {'file':'/etc/vpn/etc/swanctl/x509/strongSwanGatewayCert.pem'},
+                                            'cacert' : {'file':'/etc/vpn/etc/swanctl/x509ca/strongSwanCACert.pem'}
+                                          } ,
+                                'remote' : { 'auth' : 'pubkey',
+                                             'cacert' : {'file':'/etc/vpn/etc/swanctl/x509ca/strongSwanCACert.pem'}
+                                           },
+                                'children' : { 'rw' : { 'mode' : 'tunnel',
+                                                        'local_ts': ['0.0.0.0/0'],
+                                                        'rekey_time': '8h',
+                                                        'dpd_action': 'restart'
+                                                       }}}}
+
+vpnConfig = collections.OrderedDict(config)
+
+print("Loading Configuration for Site to Site IPSec")
+v.load_conn(vpnConfig)
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++ Python Code End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
