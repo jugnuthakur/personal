@@ -38,3 +38,7 @@ EXAMPLES
           ps -q 42 -o comm=
 
       watch -tdn0.5 ps -mo pid,tid,%cpu,psr -p \`pgrep BINARY-NAME\`
+
+2). Command to get public IP from CLI
+       root@gateway:~# dig +short myip.opendns.com @resolver1.opendns.com
+       65.0.185.94
