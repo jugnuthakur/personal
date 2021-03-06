@@ -16,7 +16,7 @@ https://wiki.wireshark.org/DisplayFilters
     C:\> tshakr -i <ifname> -f "icmp or tcp or udp"
          
 3). Capture based upon port and ip.
-    C:\> tshark -i <ifname> -f "port yy and x.x.x.x"
+    C:\> tshark -i <ifname> -f "port yy and host x.x.x.x"
 
 4). Capture TLS handshake
     C:\> tshark -i <ifname> -f "port 443  and  host x.x.x.x"  -Y  "tls.handshake
