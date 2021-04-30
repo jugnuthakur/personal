@@ -1,3 +1,3 @@
 # personal
 Tips and tricks.
-The reporisty conatins collection of my learing. 
+The reporisty contains collection of my learing. 
