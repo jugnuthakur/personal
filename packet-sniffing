@@ -32,3 +32,22 @@ https://wiki.wireshark.org/DisplayFilters
     91      192.168.43.146,40.100.137.82    39078,443       outlook.office365.com   Client Hello
 
 You can use Wireshark and save the most used filters and use them wiht -e <field> to display relevent information.
+
+Tcpdump Command
+==================
+sudo tcpdump -D
+sudo tcpdump --interface any
+Capture 5 packets
+tcpdump -i any -c 5
+tcpdump -i any -c5 -nn
+tcpdump -i any -c5 icmp
+tcpdump -i any -c5 -nn host 54.204.39.132
+tcpdump -i any -c5 -nn port 80
+tcpdump -i any -c5 -nn src 192.168.122.98
+tcpdump -i any -c5 -nn dst 192.168.122.98
+tcpdump -i any -c5 -nn src 192.168.122.98 and port 80
+tcpdump -i any -c5 -nn "port 80 and (src 192.168.122.98 or src 54.204.39.132)"
+tcpdump -i any -c10 -nn -A port 80
+tcpdump -i any -c10 -nn -w webserver.pcap port 80
+tcpdump -nn -r webserver.pcap
+tcpdump -nn -r webserver.pcap src 54.204.39.132
